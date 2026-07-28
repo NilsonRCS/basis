@@ -4,7 +4,7 @@
   "description": "framework/boilerplate basico em Nodejs",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "tsx watch src/main/server.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js"
   },

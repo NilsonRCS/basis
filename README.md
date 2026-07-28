@@ -91,3 +91,6 @@ Application ──────────► Domain
 Infrastructure ───────► Domain
 
 Domain ───────────────► Ninguém
+
+
+add: Barrel Pattern no futuro
