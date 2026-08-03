@@ -1,4 +1,4 @@
-import { buildApp } from "./app";
+import { buildApp } from "./index";
 
 async function start(): Promise<void> {
   const app = buildApp();
