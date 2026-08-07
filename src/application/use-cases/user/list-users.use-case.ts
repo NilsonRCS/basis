@@ -13,8 +13,8 @@ export class ListUsersUseCase implements IListUsersUseCase {
     return {
       users: result.users.map((user) => ({
         id: user.id,
-        name: user.name,
-        email: user.email,
+        name: user.name.value,
+        email: user.email.value,
         createdAt: user.createdAt,
       })),
       total: result.total,

@@ -8,10 +8,10 @@ import { ListUsersController } from "@/presentation/http/controllers/user/list-u
 import { GetUserController } from "@/presentation/http/controllers/user/get-user.controller.js";
 import { UpdateUserController } from "@/presentation/http/controllers/user/update-user.controller.js";
 import { DeleteUserController } from "@/presentation/http/controllers/user/delete-user.controller.js";
-import { InMemoryUserRepository } from "@/infrastructure/repositories/in-memory-user.repository.js";
+import { makeUserRepository } from "@/main/factories/repositories/user-repository.factory.js";
 
 export function makeUserControllers() {
-  const userRepository = new InMemoryUserRepository();
+  const userRepository = makeUserRepository();
 
   return {
     createUser: new CreateUserController(new CreateUserUseCase(userRepository)),

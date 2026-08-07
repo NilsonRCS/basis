@@ -6,6 +6,7 @@ import { GetUserUseCase } from "../src/application/use-cases/user/get-user.use-c
 import { ListUsersUseCase } from "../src/application/use-cases/user/list-users.use-case.js";
 import { UpdateUserUseCase } from "../src/application/use-cases/user/update-user.use-case.js";
 import { InMemoryUserRepository } from "../src/infrastructure/repositories/in-memory-user.repository.js";
+import { AppError, ConflictError, NotFoundError } from "../src/shared/errors/app-error.js";
 
 test("create and list users", async () => {
   const repository = new InMemoryUserRepository();
@@ -42,7 +43,7 @@ test("reject duplicate email", async () => {
         email: "ana@example.com",
         password: "secret456",
       }),
-    /User already exists/
+    ConflictError
   );
 });
 
@@ -67,5 +68,76 @@ test("get, update and delete a user", async () => {
 
   await deleteUser.execute(created.id);
 
-  await assert.rejects(() => getUser.execute(created.id), /User not found/);
+  await assert.rejects(() => getUser.execute(created.id), NotFoundError);
+});
+
+test("reject update email when another user already uses it", async () => {
+  const repository = new InMemoryUserRepository();
+  const createUser = new CreateUserUseCase(repository);
+  const updateUser = new UpdateUserUseCase(repository);
+
+  const firstUser = await createUser.execute({
+    name: "Rafa",
+    email: "rafa@example.com",
+    password: "secret123",
+  });
+
+  await createUser.execute({
+    name: "Lia",
+    email: "lia@example.com",
+    password: "secret123",
+  });
+
+  await assert.rejects(
+    () => updateUser.execute(firstUser.id, { email: "lia@example.com" }),
+    ConflictError
+  );
+});
+
+test("normalize email and still reject duplicates", async () => {
+  const repository = new InMemoryUserRepository();
+  const createUser = new CreateUserUseCase(repository);
+
+  const created = await createUser.execute({
+    name: "Nina",
+    email: "NINA@Example.Com ",
+    password: "secret123",
+  });
+
+  assert.equal(created.email, "nina@example.com");
+
+  await assert.rejects(
+    () =>
+      createUser.execute({
+        name: "Nina 2",
+        email: "nina@example.com",
+        password: "secret123",
+      }),
+    ConflictError
+  );
+});
+
+test("reject invalid email and invalid name from domain rules", async () => {
+  const repository = new InMemoryUserRepository();
+  const createUser = new CreateUserUseCase(repository);
+
+  await assert.rejects(
+    () =>
+      createUser.execute({
+        name: "Ana",
+        email: "invalido",
+        password: "secret123",
+      }),
+    (error: unknown) => error instanceof AppError && error.statusCode === 422
+  );
+
+  await assert.rejects(
+    () =>
+      createUser.execute({
+        name: "A",
+        email: "ana2@example.com",
+        password: "secret123",
+      }),
+    (error: unknown) => error instanceof AppError && error.statusCode === 422
+  );
 });

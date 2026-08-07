@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import { User } from "../../domain/entities/user.entity.js";
 import type { UserRepositoryPort } from "../../domain/ports/user-repository.port.js";
 
@@ -30,6 +29,6 @@ export class InMemoryUserRepository implements UserRepositoryPort {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.users.find((user) => user.email === email) ?? null;
+    return this.users.find((user) => user.email.value === email) ?? null;
   }
 }
