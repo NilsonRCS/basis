@@ -2,6 +2,8 @@ import Fastify, { type FastifyInstance } from "fastify";
 import { ZodError } from "zod";
 import { AppError } from "@/shared/errors/app-error.js";
 import { userRoutes } from "@/presentation/http/routes/user.routes.js";
+import { authRoutes } from "@/presentation/http/routes/auth.routes.js";
+import { makeAuthControllers } from "@/main/factories/auth.factory.js";
 import { makeUserControllers } from "./factories/user.factory.js";
 
 function buildApp(): FastifyInstance {
@@ -39,6 +41,7 @@ function buildApp(): FastifyInstance {
   app.get("/health", async () => ({ status: "tá vivo" }));
 
   void app.register(userRoutes(makeUserControllers()), { prefix: "/api" });
+  void app.register(authRoutes(makeAuthControllers()), { prefix: "/api" });
 
   return app;
 }

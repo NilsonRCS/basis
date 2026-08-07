@@ -5,6 +5,7 @@ import type { UserRepositoryPort } from "@/domain/ports/user-repository.port.js"
 import { Email } from "@/domain/value-objects/email.value-object.js";
 import { UserName } from "@/domain/value-objects/user-name.value-object.js";
 import { ConflictError } from "@/shared/errors/app-error.js";
+import { hashPassword } from "@/shared/security/password.js";
 
 export interface ICreateUserUseCase {
   execute(input: CreateUserInputDto): Promise<UserResponseDto>;
@@ -24,7 +25,7 @@ export class CreateUserUseCase implements ICreateUserUseCase {
       randomUUID(),
       UserName.create(input.name),
       email,
-      input.password,
+      hashPassword(input.password),
       new Date()
     );
     const created = await this.userRepository.create(user);

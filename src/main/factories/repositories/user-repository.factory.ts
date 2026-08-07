@@ -3,10 +3,15 @@ import { InMemoryUserRepository } from "@/infrastructure/repositories/in-memory-
 import { PrismaUserRepository } from "@/infrastructure/repositories/prisma-user.repository.js";
 import { prismaClient } from "@/infrastructure/database/prisma/client.js";
 
+let inMemoryRepository: InMemoryUserRepository | null = null;
+let prismaRepository: PrismaUserRepository | null = null;
+
 export function makeUserRepository(): UserRepositoryPort {
   if (process.env.USER_REPOSITORY === "prisma") {
-    return new PrismaUserRepository(prismaClient);
+    prismaRepository ??= new PrismaUserRepository(prismaClient);
+    return prismaRepository;
   }
 
-  return new InMemoryUserRepository();
+  inMemoryRepository ??= new InMemoryUserRepository();
+  return inMemoryRepository;
 }
